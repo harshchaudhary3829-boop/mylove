@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Happy Birthday, My Love ❤️</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=DM+Sans:ital,wght@0,400;0,500;1,400&family=Fredoka:wght@400;500&family=Great+Vibes&family=Pacifico&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <style>
+        :root {
+            /* Colors */
+            --c-white: #FFFFFF;
+            --c-offwhite: #FFFDFB;
+            --c-pink: #F4C4CE;
+            --c-yellow: #FBE7A1;
+            --c-blue: #BFDDF5;
+            --c-lavender: #D9CBEB;
+            --c-red: #E8707F;
+            --c-sage: #A9C4A0;
+            --c-fresh: #7FB77E;
+            --c-deepgreen: #3F6B4F;
+            --c-charcoal: #2B3A33;
+            --c-deepblue: #2F4F8F;
+            
+            /* Fonts */
+            --f-script: 'Great Vibes', cursive;
+            --f-sans: 'DM Sans', sans-serif;
+            --f-retro: 'Pacifico', cursive;
+            --f-hand: 'Caveat', cursive;
+            --f-pixel: 'Press Start 2P', monospace;
+            --f-ui: 'Fredoka', sans-serif;
+
+            /* Utilities */
+            --z-bg: -10;
+            --z-scene: 10;
+            --z-fx: 50;
+            --z-ui: 100;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background-color: var(--c-white);
+            color: var(--c-charcoal);
+            font-family: var(--f-sans);
+            overflow: hidden;
+            width: 100vw;
+            height: 100dvh;
+            position: relative;
+            /* Paper grain texture */
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+            overscroll-behavior: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #app-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #scene-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: var(--z-scene);
+        }
+
+        .scene {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            padding: 24px;
+        }
+        .scene.active {
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        #fx-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: var(--z-fx);
+            pointer-events: none; /* Crucial for bug 3: Lets clicks pass through */
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: var(--z-ui);
+            pointer-events: none;
+        }
+
+        .btn {
+            pointer-events: auto;
+            font-family: var(--f-ui);
+            background: var(--c-white);
+            border: 2px solid var(--c-sage);
+            color: var(--c-deepgreen);
+            padding: 12px 28px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(169, 196, 160, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+            touch-action: none; /* Only on interactables */
+        }
+        .btn:active {
+            transform: scale(0.95);
+        }
+        .btn-primary {
+            background: var(--c-sage);
+            color: var(--c-white);
+            border-color: var(--c-fresh);
+        }
+
+        .audio-toggle {
+            position: absolute;
+            top: env(safe-area-inset-top, 20px);
+            right: env(safe-area-inset-right, 20px);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(4px);
+            border: 1px solid var(--c-lavender);
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-family: var(--f-ui);
+            font-size: 0.9rem;
+            color: var(--c-deepblue);
+            cursor: pointer;
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0; /* Shown after start */
+            transition: opacity 0.5s;
+        }
+
+        .bg-heart {
+            position: absolute;
+            color: var(--c-pink);
+            font-size: 14px;
+            opacity: 0.3;
+            z-index: var(--z-bg);
+            animation: floatUp linear infinite;
+            user-select: none;
+        }
+        @keyframes floatUp {
+            from { transform: translateY(110dvh) rotate(0deg); }
+            to { transform: translateY(-10dvh) rotate(360deg); }
+        }
+
+        /* Envelope */
+        .envelope-wrapper {
+            position: relative;
+            width: 300px;
+            height: 200px;
+            perspective: 1000px;
+        }
+        .envelope-body {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #fffdfc, #fff8fb);
+            border: 2px solid #c2afd4;
+            border-radius: 4px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2;
+        }
+        .envelope-flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(135deg, #fbeef3, #efe7fb);
+            border: 2px solid #a98cbc;
+            border-bottom: none;
+            clip-path: polygon(0 0, 50% 100%, 100% 0);
+            transform-origin: top;
+            z-index: 4;
+            transition: transform 1s ease-in-out;
+        }
+        .wax-seal {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            background: var(--c-red);
+            border-radius: 50%;
+            color: var(--c-white);
+            font-family: var(--f-script);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            box-shadow: inset 0 -3px 6px rgba(0,0,0,0.2), 0 3px 6px rgba(0,0,0,0.1);
+            z-index: 5;
+            cursor: pointer;
+            touch-action: none;
+        }
+        .letter-paper {
+            position: absolute;
+            bottom: 0;
+            left: 5%;
+            width: 90%;
+            height: 180px;
+            background: linear-gradient(135deg, #fffefa, #fff 72%, #fff9f5);
+            border: 1px solid rgba(217, 203, 235, 0.8);
+            border-radius: 5px;
+            box-shadow: 0 8px 24px rgba(47, 79, 143, 0.12), inset 0 0 0 5px rgba(255, 255, 255, 0.75);
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: var(--f-hand);
+            font-size: 1.5rem;
+            color: var(--c-charcoal);
+        }
+        .letter-paper p {
+            padding: 4px 14px 7px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.88);
+            box-shadow: 0 2px 12px rgba(47, 79, 143, 0.1);
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        /* Love Words */
+        .love-word {
+            position: absolute;
+            opacity: 0;
+            white-space: nowrap;
+        }
+        .huge-love {
+            font-family: var(--f-script);
+            font-size: 5rem;
+            color: var(--c-red);
+            opacity: 0;
+            text-shadow: 2px 2px 10px rgba(232, 112, 127, 0.2);
+        }
+
+        /* Photos Layouts */
+        .photo-layout {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+        }
+        .photo-img {
+            background: var(--c-offwhite);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            border: 8px solid var(--c-white);
+            border-bottom-width: 24px;
+            border-radius: 2px;
+            object-fit: cover;
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        .photo-video {
+            display: block;
+            aspect-ratio: 9 / 20;
+            object-fit: cover;
+            background: #1b1b1b;
+        }
+        .gallery-frame {
+            box-sizing: border-box;
+            width: min(92vw, 400px);
+            padding: clamp(12px, 4vw, 20px);
+        }
+        .gallery-video-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: clamp(6px, 2.5vw, 10px);
+        }
+        .gallery-caption {
+            margin-top: clamp(10px, 3vw, 15px);
+            font-family: var(--f-script);
+            font-size: clamp(1.75rem, 7vw, 2.5rem);
+            text-align: center;
+            color: var(--c-deepblue);
+        }
+        .photo-img.instax {
+            box-sizing: border-box;
+            width: min(64vw, 250px) !important;
+            max-height: 55dvh;
+            object-fit: contain;
+        }
+        .smile-caption {
+            position: absolute;
+            bottom: max(12%, env(safe-area-inset-bottom, 0px));
+            font-family: var(--f-retro);
+            font-size: clamp(1.25rem, 6.5vw, 2rem);
+            text-align: center;
+            color: var(--c-red);
+            text-shadow: 2px 2px 0 #fff, 4px 4px 0 var(--c-pink);
+            transform: rotate(-2deg);
+        }
+        .fallback-photo {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--c-blue);
+            color: var(--c-deepblue);
+            font-family: var(--f-hand);
+            font-size: 1.5rem;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Gift & Bow */
+        .bow-stage {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin-top: 30px;
+            overflow: visible;
+            cursor: grab;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .bow-stage:active { cursor: grabbing; }
+        .archery-svg {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            width: 168px;
+            height: 168px;
+            overflow: visible;
+            z-index: 8;
+            pointer-events: none;
+        }
+        #bow-draggable {
+            cursor: grab;
+            pointer-events: all;
+            touch-action: none;
+            outline: none;
+        }
+        #bow-draggable:active { cursor: grabbing; }
+        #bow-draggable:focus-visible {
+            filter: drop-shadow(0 0 4px rgba(232, 112, 127, 0.8));
+        }
+        
+        /* Arrow & Avatar */
+        #arrow-element {
+            position: absolute;
+            width: 56px;
+            height: 14px;
+            z-index: 15;
+            opacity: 0;
+            pointer-events: none;
+            transform-origin: right center;
+        }
+        #avatar-element {
+            position: absolute;
+            top: 10%;
+            left: calc(50% - 50px);
+            width: 100px;
+            height: 100px;
+            z-index: 1;
+            opacity: 0;
+        }
+        #impact-effect {
+            position: absolute;
+            top: calc(10% - 24px);
+            left: calc(50% - 74px);
+            width: 148px;
+            height: 148px;
+            z-index: 5;
+            display: grid;
+            place-items: center;
+            opacity: 0;
+            pointer-events: none;
+        }
+        #impact-effect svg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+        #impact-effect span {
+            position: absolute;
+            top: -4px;
+            right: -12px;
+            padding: 3px 8px;
+            border: 2px solid var(--c-charcoal);
+            border-radius: 12px 12px 12px 2px;
+            background: var(--c-yellow);
+            color: var(--c-charcoal);
+            font-family: var(--f-ui);
+            font-size: 0.85rem;
+            font-weight: 500;
+            transform: rotate(9deg);
+        }
+
+        /* Cake */
+        .cake-wrapper {
+            position: relative;
+            width: 280px;
+            height: 300px;
+        }
+        .flame-hitarea {
+            fill: transparent;
+            cursor: pointer;
+            pointer-events: auto;
+            touch-action: none;
+        }
+
+        /* Final Letter */
+        .final-letter-text {
+            font-family: var(--f-hand);
+            font-size: clamp(1.3rem, 4.2vw, 1.8rem);
+            color: var(--c-charcoal);
+            text-align: left;
+            line-height: 1.35;
+            width: 100%;
+            margin: 0;
+        }
+        .final-letter-sheet {
+            position: relative;
+            width: min(500px, 92vw);
+            max-height: calc(100dvh - 48px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: clamp(24px, 6vw, 42px) clamp(22px, 7vw, 42px);
+            border: 1px solid rgba(217, 203, 235, 0.95);
+            border-radius: 5px;
+            background-color: #fffefa;
+            background-image:
+                repeating-linear-gradient(0deg, rgba(169, 196, 160, 0.055) 0, rgba(169, 196, 160, 0.055) 1px, transparent 1px, transparent 30px),
+                linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,253,248,0.98));
+            box-shadow: 0 16px 42px rgba(47, 79, 143, 0.14), 0 3px 8px rgba(43, 58, 51, 0.06);
+        }
+        .final-letter-sheet::before {
+            content: "";
+            position: absolute;
+            inset: 7px;
+            border: 1px solid rgba(244, 196, 206, 0.35);
+            border-radius: 2px;
+            pointer-events: none;
+        }
+        .final-letter-line {
+            position: relative;
+            min-height: 1.35em;
+            margin: 0 0 0.24em;
+            overflow-wrap: anywhere;
+        }
+        .final-letter-line:last-child {
+            margin-top: 0.5em;
+            color: var(--c-deepgreen);
+        }
+        .photo-layout {
+            background: transparent;
+        }
+
+        /* Dusk Overlay */
+        #dusk-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(43, 58, 51, 0.4);
+            z-index: 9;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Responsive typography */
+        @media (max-width: 768px) {
+            .scene {
+                padding: max(12px, env(safe-area-inset-top, 0px)) 14px max(12px, env(safe-area-inset-bottom, 0px));
+            }
+            .huge-love { font-size: 3.5rem; }
+            .archery-svg { top: 20px; left: 20px; width: 160px; height: 160px; }
+            .envelope-wrapper { width: min(300px, 88vw); }
+            .gallery-frame { padding: clamp(12px, 3.5vw, 16px); }
+            .gallery-video-grid { gap: clamp(6px, 2vw, 8px); }
+            .photo-img.instax { max-height: 50dvh; }
+            .smile-caption { font-size: clamp(1.2rem, 6.8vw, 1.75rem); }
+            .final-letter-sheet {
+                max-height: calc(100dvh - 32px);
+                padding: clamp(18px, 5vw, 30px) clamp(16px, 6vw, 28px);
+            }
+        }
+
+        @media (max-height: 650px) {
+            .scene { padding-block: 10px; }
+            .bow-stage { margin-top: 16px; }
+            .photo-img.instax { max-height: 44dvh; }
+            .smile-caption { bottom: max(8%, env(safe-area-inset-bottom, 0px)); }
+            .final-letter-sheet { max-height: calc(100dvh - 20px); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .bg-heart { animation-duration: 25s !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <!-- Background CSS Elements Container -->
+        <div id="bg-elements"></div>
+        
+        <!-- Dusk Overlay for Cake Scene -->
+        <div id="dusk-overlay"></div>
+
+        <!-- Main Scene Container -->
+        <div id="scene-container"></div>
+
+        <!-- FX Canvas for Particles and Typography Engine -->
+        <canvas id="fx-canvas"></canvas>
+
+        <!-- UI Layer -->
+        <div id="ui-layer">
+            <button class="audio-toggle" id="btn-audio">
+                <span id="audio-icon">♪</span> A song for you
+            </button>
+            <!-- Audio Element (hidden) -->
+            <audio id="bgm" loop preload="auto">
+                <source src="assets/audio/birthday-song.mp3" type="audio/mpeg">
+                <!-- If asset missing, WebAudio setup handles it gracefully -->
+            </audio>
+        </div>
+    </div>
+
+    <script type="module">
+        // ---------------------------------------------------------
+        // 1. CONFIGURATION & STATE
+        // ---------------------------------------------------------
+        const CONFIG = {
+            colors: {
+                pink: '#F4C4CE', yellow: '#FBE7A1', blue: '#BFDDF5', 
+                lavender: '#D9CBEB', red: '#E8707F', sage: '#A9C4A0', 
+                white: '#FFFFFF', charcoal: '#2B3A33'
+            },
+            gallery: {
+                videos: ["assets/memory-1.mp4", "assets/memory-2.mp4"],
+                posters: ["assets/memory-1-poster.jpg", "assets/memory-2-poster.jpg"],
+                smilePhoto: "assets/love-smile.jpg"
+            },
+            loveWords: [
+                "Happy Birthday, my sweetheart.", "My darling.", "My love.", "My beautiful girl.",
+                "My happiness", "My safe place", "My favourite smile", "My beautiful girl",
+                "My favourite memory", "My comfort", "My reason to smile", "My favourite notification",
+                "My little happiness", "My person", "My home", "My sunshine", "My everything",
+                "My beautiful girl", "My love", "My darling", "My sweetheart", "My forever favourite",
+                "My favourite human", "My love."
+            ],
+            explosion: {
+                // Time-based typography fall tuning knobs
+                fallSpeedMin: 40,
+                fallSpeedMax: 110,
+                spawnStart: 2, // words/sec initially
+                spawnEnd: 8,   // words/sec peak
+                rampSeconds: 10,
+                maxWordsDesktop: 120,
+                maxWordsMobile: 60,
+                secondsBeforeButton: 12,
+                words: [
+                    "I LOVE YOU!", "I LOVE YOU, MY LOVE!", "MY DARLING ❤️", 
+                    "MY SWEETHEART.", "MY LOVE.", "MY DARLING 🌿", "LOVE YOU FOREVER.", 
+                    "YOU ARE MY WORLD.", "MY FAVOURITE PERSON.", "MWAHHH 💋."
+                ]
+            },
+            finalLetter: [
+                "I love you, my love.",
+                "My darling. ❤️",
+                "I wish every single one of your wishes comes true.",
+                "I wish you the happiest birthday.",
+                "I know this little website isn't everything I could give you...",
+                "But it's what I can give you right now.",
+                "And I promise you...",
+                "One day, I'll give you a world. ❤️",
+                "Happy birthday, Rimsha, my love."
+            ]
+        };
+
+        const STATE = {
+            currentSceneIndex: 0,
+            isMobile: window.innerWidth <= 768,
+            audioContext: null,
+            gainNode: null,
+            isMuted: false,
+            discoveredPhotos: [],
+            fontsLoaded: false
+        };
+
+        // ---------------------------------------------------------
+        // 2. AUDIO & SFX MANAGER (Bug 6 Fix)
+        // ---------------------------------------------------------
+        class AudioManager {
+            static init() {
+                if (STATE.audioContext) return;
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                STATE.audioContext = new AudioContext();
+                STATE.gainNode = STATE.audioContext.createGain();
+                STATE.gainNode.connect(STATE.audioContext.destination);
+                
+                const bgm = document.getElementById('bgm');
+                try {
+                    const track = STATE.audioContext.createMediaElementSource(bgm);
+                    track.connect(STATE.gainNode);
+                } catch (e) {
+                    console.log("Audio routing already connected or failed.");
+                }
+
+                document.getElementById('btn-audio').addEventListener('click', () => this.toggleMute());
+            }
+
+            static async resumeAndPlay() {
+                if (!STATE.audioContext) this.init();
+                if (STATE.audioContext.state === 'suspended') {
+                    await STATE.audioContext.resume();
+                }
+                const bgm = document.getElementById('bgm');
+                bgm.volume = 0.5; // Base volume
+                bgm.play().catch(e => console.log("BGM play prevented:", e));
+                
+                gsap.to(document.getElementById('btn-audio'), {opacity: 1, duration: 1});
+            }
+
+            static toggleMute() {
+                STATE.isMuted = !STATE.isMuted;
+                const bgm = document.getElementById('bgm');
+                bgm.muted = STATE.isMuted;
+                document.getElementById('audio-icon').textContent = STATE.isMuted ? '🔇' : '♪';
+            }
+
+            static duck(amount = 0.2, duration = 1) {
+                if(!STATE.gainNode) return;
+                gsap.to(STATE.gainNode.gain, { value: amount, duration: duration });
+            }
+
+            // Synthesized SFX
+            static playSFX(type) {
+                if (!STATE.audioContext || STATE.isMuted) return;
+                const ctx = STATE.audioContext;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(STATE.gainNode);
+
+                const now = ctx.currentTime;
+                if (type === 'pop') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                } else if (type === 'sparkle') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(800 + Math.random()*400, now);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'snap') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(520, now);
+                    osc.frequency.exponentialRampToValueAtTime(170, now + 0.16);
+                    gain.gain.setValueAtTime(0.24, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.16);
+                    osc.start(now);
+                    osc.stop(now + 0.16);
+                } else if (type === 'whoosh') {
+                    // White noise approximation for whoosh
+                    const bufferSize = ctx.sampleRate * 0.5; 
+                    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+                    const noise = ctx.createBufferSource();
+                    noise.buffer = buffer;
+                    const filter = ctx.createBiquadFilter();
+                    filter.type = 'bandpass';
+                    filter.frequency.setValueAtTime(400, now);
+                    filter.frequency.linearRampToValueAtTime(2000, now + 0.5);
+                    noise.connect(filter);
+                    filter.connect(gain);
+                    gain.gain.setValueAtTime(0, now);
+                    gain.gain.linearRampToValueAtTime(0.2, now + 0.2);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.5);
+                    noise.start(now);
+                }
+            }
+        }
+
+        // ---------------------------------------------------------
+        // 3. CANVAS FX ENGINE (Bugs 2, 3, 7.8, 9)
+        // ---------------------------------------------------------
+        class FXEngine {
+            constructor() {
+                this.canvas = document.getElementById('fx-canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.particles = [];
+                this.words = [];
+                this.textSprites = new Map();
+                this.running = false;
+                this.mode = 'idle'; // idle, arrow, death, typography
+                this.lastTime = performance.now();
+                
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+            }
+
+            resize() {
+                const dpr = Math.min(window.devicePixelRatio || 1, 2);
+                this.width = window.innerWidth;
+                this.height = window.innerHeight;
+                this.canvas.width = this.width * dpr;
+                this.canvas.height = this.height * dpr;
+                this.ctx.scale(dpr, dpr);
+            }
+
+            start(mode) {
+                this.mode = mode;
+                if (!this.running) {
+                    this.running = true;
+                    this.lastTime = performance.now();
+                    this.loop();
+                }
+            }
+
+            stop() {
+                this.running = false;
+                this.particles = [];
+                this.words = [];
+                this.ctx.clearRect(0, 0, this.width, this.height);
+            }
+
+            loop() {
+                if (!this.running) return;
+                requestAnimationFrame(() => this.loop());
+
+                const now = performance.now();
+                let dt = (now - this.lastTime) / 1000;
+                if (dt > 0.05) dt = 0.05; // Clamp dt
+                this.lastTime = now;
+
+                this.ctx.clearRect(0, 0, this.width, this.height);
+
+                if (this.mode === 'typography') {
+                    this.updateTypography(dt);
+                } else if (this.mode === 'death') {
+                    this.updateDeath(dt);
+                }
+                
+                this.updateParticles(dt);
+            }
+
+            // --- Typography Fall Logic (Bug 7.8) ---
+            initTypographyFall() {
+                this.words = [];
+                this.spawnTimer = 0;
+                this.spawnRate = CONFIG.explosion.spawnStart;
+                this.elapsed = 0;
+                this.preRenderFonts();
+                this.start('typography');
+            }
+
+            preRenderFonts() {
+                // To avoid text drawing overhead, we could prerender to offscreen canvases.
+                // For simplicity and to fit in a single file safely, we'll draw text directly but optimized.
+                this.ctx.textBaseline = 'middle';
+                this.ctx.textAlign = 'center';
+            }
+
+            updateTypography(dt) {
+                this.elapsed += dt;
+                this.spawnTimer += dt;
+                
+                // Ramp spawn rate
+                const progress = Math.min(this.elapsed / CONFIG.explosion.rampSeconds, 1);
+                this.spawnRate = CONFIG.explosion.spawnStart + (CONFIG.explosion.spawnEnd - CONFIG.explosion.spawnStart) * progress;
+
+                const maxW = STATE.isMobile ? CONFIG.explosion.maxWordsMobile : CONFIG.explosion.maxWordsDesktop;
+                
+                if (this.spawnTimer > 1 / this.spawnRate && this.words.length < maxW) {
+                    this.spawnWord();
+                    this.spawnTimer = 0;
+                }
+
+                // Physics update
+                for (let i = this.words.length - 1; i >= 0; i--) {
+                    let w = this.words[i];
+                    w.y += w.vy * dt;
+                    w.x += Math.sin(this.elapsed * w.swaySpeed + w.swayOffset) * w.swayAmt * dt;
+                    w.rot += w.rotSpeed * dt;
+
+                    // Bounce on floor loosely
+                    const floorY = this.height - 40 - (Math.random()*60);
+                    if (w.y > floorY && Math.abs(w.vy) > 10) {
+                        w.y = floorY;
+                        w.vy *= -0.3; // Soft bounce
+                        w.rotSpeed *= 0.5;
+                        if(Math.random() > 0.8) AudioManager.playSFX('sparkle');
+                    }
+
+                    // Render
+                    this.ctx.save();
+                    this.ctx.translate(w.x, w.y);
+                    this.ctx.rotate(w.rot);
+                    this.ctx.scale(w.scale, w.scale);
+                    
+                    this.ctx.font = w.fontStr;
+                    this.ctx.fillStyle = w.color;
+                    this.ctx.strokeStyle = varColor('--c-white');
+                    this.ctx.lineWidth = 4;
+                    this.ctx.globalAlpha = w.opacity;
+                    
+                    this.ctx.strokeText(w.text, 0, 0);
+                    this.ctx.fillText(w.text, 0, 0);
+                    this.ctx.restore();
+                }
+            }
+
+            spawnWord() {
+                const wordsArr = CONFIG.explosion.words;
+                const fonts = ['var(--f-script)', 'var(--f-retro)', 'var(--f-ui)', 'var(--f-pixel)'];
+                const colors = ['--c-pink', '--c-yellow', '--c-blue', '--c-lavender', '--c-red', '--c-sage', '--c-deepblue'];
+                
+                const isHuge = Math.random() > 0.8;
+                let size = isHuge ? (STATE.isMobile ? 60 : 120) : (STATE.isMobile ? 24 : 40);
+                // Random depth variance
+                const depthScale = 0.5 + Math.random() * 0.5;
+                
+                const speedRange = CONFIG.explosion.fallSpeedMax - CONFIG.explosion.fallSpeedMin;
+                let vy = CONFIG.explosion.fallSpeedMin + Math.random() * speedRange;
+                if (isHuge) vy *= 0.6; // Huge words fall slower
+
+                this.words.push({
+                    text: wordsArr[Math.floor(Math.random() * wordsArr.length)],
+                    x: Math.random() * this.width,
+                    y: -100,
+                    vy: vy,
+                    fontStr: `${Math.floor(size * depthScale)}px ${fonts[Math.floor(Math.random() * fonts.length)]}`,
+                    color: varColor(colors[Math.floor(Math.random() * colors.length)]),
+                    scale: 1,
+                    opacity: isHuge ? 1 : 0.4 + Math.random()*0.6,
+                    rot: (Math.random() - 0.5) * 0.2,
+                    rotSpeed: (Math.random() - 0.5) * 0.5,
+                    swaySpeed: 1 + Math.random() * 2,
+                    swayOffset: Math.random() * Math.PI * 2,
+                    swayAmt: 20 + Math.random() * 30
+                });
+            }
+
+            // --- Pixel Death Logic (Bug 9) ---
+            triggerDeath(rect) {
+                this.stop();
+                this.start('death');
+                
+                // Create 16x16 grid explosion from rect center
+                const cx = rect.left + rect.width/2;
+                const cy = rect.top + rect.height/2;
+                const pSize = Math.max(4, rect.width / 16);
+                
+                for(let row=0; row<16; row++) {
+                    for(let col=0; col<16; col++) {
+                        // Simple 8-bit color palette distribution
+                        const colors = [varColor('--c-charcoal'), varColor('--c-pink'), varColor('--c-blue'), varColor('--c-white')];
+                        const color = colors[Math.floor(Math.random()*colors.length)];
+                        
+                        this.particles.push({
+                            x: rect.left + col * pSize,
+                            y: rect.top + row * pSize,
+                            vx: (col - 8) * (20 + Math.random()*30),
+                            vy: (row - 8) * (20 + Math.random()*30) - 150,
+                            size: pSize,
+                            color: color,
+                            life: 2 + Math.random()
+                        });
+                    }
+                }
+                AudioManager.playSFX('whoosh'); // knockback sound
+            }
+
+            updateDeath(dt) {
+                for (let i = this.particles.length - 1; i >= 0; i--) {
+                    let p = this.particles[i];
+                    p.vy += 800 * dt; // gravity
+                    p.x += p.vx * dt;
+                    p.y += p.vy * dt;
+                    p.life -= dt;
+
+                    // Floor bounce
+                    if(p.y > this.height - p.size) {
+                        p.y = this.height - p.size;
+                        p.vy *= -0.5;
+                        p.vx *= 0.8;
+                    }
+
+                    if (p.life <= 0) {
+                        this.particles.splice(i, 1);
+                        continue;
+                    }
+
+                    this.ctx.fillStyle = p.color;
+                    this.ctx.globalAlpha = Math.min(1, p.life);
+                    this.ctx.fillRect(p.x, p.y, p.size, p.size);
+                }
+                this.ctx.globalAlpha = 1;
+            }
+
+            updateParticles(dt) {
+                // Generic particles update (trails, etc) if needed
+            }
+        }
+
+        const fx = new FXEngine();
+
+        // ---------------------------------------------------------
+        // 4. HELPERS
+        // ---------------------------------------------------------
+        function varColor(name) {
+            return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        }
+
+        async function typeText(element, text, speed = 50) {
+            element.innerHTML = '';
+            for (let i = 0; i < text.length; i++) {
+                element.innerHTML += text.charAt(i);
+                await new Promise(r => setTimeout(r, speed + (Math.random() * 20)));
+            }
+        }
+
+        function createBackgroundHearts() {
+            const container = document.getElementById('bg-elements');
+            container.innerHTML = '';
+            const count = STATE.isMobile ? 15 : 25;
+            for(let i=0; i<count; i++) {
+                let heart = document.createElement('div');
+                heart.className = 'bg-heart';
+                heart.innerHTML = '❤';
+                heart.style.left = `${Math.random() * 100}vw`;
+                heart.style.animationDuration = `${15 + Math.random() * 15}s`;
+                heart.style.animationDelay = `-${Math.random() * 20}s`;
+                heart.style.fontSize = `${10 + Math.random() * 14}px`;
+                container.appendChild(heart);
+            }
+        }
+
+        // ---------------------------------------------------------
+        // 5. SCENE MANAGER & SCENES (Fixing Bug 4 Replay & Bug 11 Hand-offs)
+        // ---------------------------------------------------------
+        class SceneManager {
+            constructor() {
+                this.container = document.getElementById('scene-container');
+                this.scenes = [
+                    SceneIntro, SceneLoveWords, ScenePhotos, 
+                    SceneGift, SceneDeath, SceneTypography, 
+                    SceneCake, SceneFinalLetter, SceneOutro
+                ];
+                this.activeSceneObj = null;
+                this.activeDOM = null;
+            }
+
+            async goTo(index) {
+                if (index < 0 || index >= this.scenes.length) return;
+                STATE.currentSceneIndex = index;
+                
+                const OldSceneObj = this.activeSceneObj;
+                const oldDOM = this.activeDOM;
+
+                const NewSceneClass = this.scenes[index];
+                this.activeSceneObj = new NewSceneClass();
+                
+                // Build DOM
+                const newDOM = document.createElement('div');
+                newDOM.className = 'scene';
+                newDOM.id = `scene-${index}`;
+                newDOM.innerHTML = this.activeSceneObj.template();
+                this.container.appendChild(newDOM);
+                this.activeDOM = newDOM;
+
+                // Crossfade Hand-off (Bug 11)
+                if (oldDOM) {
+                    if (OldSceneObj && OldSceneObj.exit) OldSceneObj.exit();
+                    gsap.to(oldDOM, {
+                        opacity: 0, 
+                        scale: 1.05, 
+                        duration: 1.2, 
+                        ease: "power2.inOut",
+                        onComplete: () => {
+                            gsap.killTweensOf(oldDOM.querySelectorAll('*'));
+                            oldDOM.remove();
+                        }
+                    });
+                }
+
+                gsap.set(newDOM, { opacity: 0, scale: 0.95 });
+                newDOM.classList.add('active');
+                
+                await gsap.to(newDOM, {
+                    opacity: 1,
+                    scale: 1,
+                    duration: 1.2,
+                    ease: "power2.inOut"
+                });
+
+                if (this.activeSceneObj.enter) this.activeSceneObj.enter(newDOM);
+            }
+
+            next() {
+                this.goTo(STATE.currentSceneIndex + 1);
+            }
+        }
+
+        // ---------------------------------------------------------
+        // SCENES DEFINITIONS
+        // ---------------------------------------------------------
+        
+        class SceneIntro {
+            template() {
+                return `
+                    <div style="font-family: var(--f-ui); font-size: 1.2rem; margin-bottom: 40px; text-align: center; height: 30px;" id="intro-text"></div>
+                    <div class="envelope-wrapper">
+                        <div class="envelope-flap" id="env-flap"></div>
+                        <div class="envelope-body">
+                            <div class="wax-seal" id="env-seal">♡</div>
+                        </div>
+                        <div class="letter-paper" id="env-letter">
+                            <p>For my love ❤️</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="btn-open" style="margin-top: 60px; opacity: 0;">OPEN MY LETTER ♡</button>
+                `;
+            }
+
+            async enter(dom) {
+                const textEl = dom.querySelector('#intro-text');
+                const btn = dom.querySelector('#btn-open');
+                const seal = dom.querySelector('#env-seal');
+                
+                await typeText(textEl, "I made something for you...", 60);
+                await new Promise(r => setTimeout(r, 800));
+                await typeText(textEl, "My love, open this.", 50);
+                
+                gsap.to(btn, {opacity: 1, y: -10, duration: 1});
+
+                btn.addEventListener('click', async () => {
+                    btn.style.pointerEvents = 'none';
+                    AudioManager.resumeAndPlay(); // Fix iOS Audio
+                    
+                    // Shake and open
+                    gsap.to(dom.querySelector('.envelope-wrapper'), {x: 5, y: -5, duration: 0.1, yoyo: true, repeat: 3});
+                    AudioManager.playSFX('pop');
+                    
+                    await new Promise(r => setTimeout(r, 400));
+                    gsap.to(seal, {opacity: 0, scale: 0, duration: 0.3});
+                    gsap.to(dom.querySelector('#env-flap'), {rotateX: 180, duration: 0.8, ease: "power2.inOut"});
+                    
+                    await new Promise(r => setTimeout(r, 800));
+                    const letter = dom.querySelector('#env-letter');
+                    gsap.set(letter, {zIndex: 6});
+                    gsap.to(letter, {y: -95, duration: 1, ease: "back.out(1.2)"});
+                    
+                    await new Promise(r => setTimeout(r, 1500));
+                    sceneManager.next();
+                });
+            }
+            exit() {}
+        }
+
+        class SceneLoveWords {
+            template() {
+                return `<div id="words-container" style="width: 100%; height: 100%; position: relative;"></div>`;
+            }
+            async enter(dom) {
+                const container = dom.querySelector('#words-container');
+                const words = CONFIG.loveWords;
+                const fonts = ['var(--f-hand)', 'var(--f-script)', 'var(--f-retro)'];
+                
+                let tl = gsap.timeline({ onComplete: () => sceneManager.next() });
+                
+                words.forEach((word, i) => {
+                    let el = document.createElement('div');
+                    el.className = 'love-word';
+                    el.textContent = word;
+                    
+                    // Final word is special
+                    if (i === words.length - 1) {
+                        el.className = 'huge-love';
+                        el.style.left = '50%';
+                        el.style.top = '50%';
+                        el.style.transform = 'translate(-50%, -50%)';
+                        container.appendChild(el);
+                        tl.to(el, {opacity: 1, scale: 1.1, duration: 2, ease: "power2.out"}, "+=0.5")
+                          .to(el, {opacity: 0, duration: 1}, "+=2");
+                    } else {
+                        // Random safe positioning
+                        let x = 10 + Math.random() * 60; // 10% to 70%
+                        let y = 15 + Math.random() * 70; // 15% to 85%
+                        el.style.left = `${x}%`;
+                        el.style.top = `${y}%`;
+                        el.style.fontFamily = fonts[Math.floor(Math.random() * fonts.length)];
+                        el.style.fontSize = `${1.2 + Math.random() * 1.5}rem`;
+                        el.style.color = (Math.random()>0.8) ? varColor('--c-red') : varColor('--c-charcoal');
+                        el.style.transform = `rotate(${(Math.random()-0.5)*20}deg)`;
+                        container.appendChild(el);
+                        
+                        tl.to(el, {opacity: 1, y: -10, duration: 1.5, ease: "power1.out"}, i === 0 ? "+=0" : "-=1")
+                          .to(el, {opacity: 0, duration: 1.5}, "+=0.5");
+                    }
+                });
+            }
+            exit() { gsap.killTweensOf('.love-word, .huge-love'); }
+        }
+
+        class ScenePhotos {
+            template() {
+                return `
+                    <div class="photo-layout" id="layout-a"></div>
+                    <div class="photo-layout" id="layout-b"></div>
+                    <div class="photo-layout" id="layout-c"></div>
+                `;
+            }
+            async enter(dom) {
+                const gallery = CONFIG.gallery;
+                
+                // Layout A: Simple Grid
+                const la = dom.querySelector('#layout-a');
+                la.innerHTML = `
+                    <div class="gallery-frame" style="background: var(--c-offwhite); border: 2px solid var(--c-charcoal); border-radius: 12px; box-shadow: 4px 4px 0 var(--c-blue);">
+                        <div style="display:flex; gap: 8px; margin-bottom: 12px;">
+                            <div style="width:12px; height:12px; border-radius:50%; background:var(--c-red)"></div>
+                            <div style="width:12px; height:12px; border-radius:50%; background:var(--c-yellow)"></div>
+                            <div style="width:12px; height:12px; border-radius:50%; background:var(--c-sage)"></div>
+                        </div>
+                        <div class="gallery-video-grid">
+                            <video src="${gallery.videos[0]}" poster="${gallery.posters[0]}" class="photo-img photo-video photo-media" aria-label="A favorite video memory" autoplay muted loop playsinline controls preload="metadata" style="width: 100%; aspect-ratio: 9 / 20; border-width: 4px; border-bottom-width: 4px;"></video>
+                            <video src="${gallery.videos[1]}" poster="${gallery.posters[1]}" class="photo-img photo-video photo-media" aria-label="Another favorite video memory" autoplay muted loop playsinline controls preload="metadata" style="width: 100%; aspect-ratio: 9 / 20; border-width: 4px; border-bottom-width: 4px;"></video>
+                        </div>
+                        <div class="gallery-caption">My Love</div>
+                    </div>
+                `;
+
+                // Layout B: One clean Instax photo, with no colored frame behind it.
+                const lb = dom.querySelector('#layout-b');
+                lb.replaceChildren();
+                lb.style.background = 'transparent';
+                lb.innerHTML = `
+                    <img src="${gallery.smilePhoto}" alt="A favorite photo of my love with her cat" class="photo-img instax photo-media" style="width: 60%; max-width: 250px; background: transparent; border-color: #fff; transform: rotate(-5deg); position: absolute; z-index: 2;">
+                    <div class="smile-caption">My Favorite Smile</div>
+                `;
+
+                // Run sequence
+                let tl = gsap.timeline({ onComplete: () => sceneManager.next() });
+                
+                // Show A
+                tl.to(la, {opacity: 1, duration: 1})
+                  .to(la.querySelectorAll('.photo-media'), {opacity: 1, scale: 1, stagger: 0.3, duration: 0.8, ease: "back.out"}, "-=0.5")
+                  .to(la, {opacity: 0, duration: 1}, "+=8");
+                
+                // Show B
+                tl.to(lb, {opacity: 1, duration: 1})
+                  .to(lb.querySelectorAll('.photo-media'), {opacity: 1, scale: 1, stagger: 0.2, duration: 1, ease: "power2.out"}, "-=0.5")
+                  .to(lb, {opacity: 0, duration: 1}, "+=4");
+            }
+            exit() { gsap.killTweensOf('.photo-layout, .photo-layout *'); }
+        }
+
+        class SceneGift {
+            template() {
+                return `
+                    <div id="gift-text" style="font-family: var(--f-ui); font-size: 1.2rem; text-align: center; margin-bottom: 20px; height: 60px;"></div>
+                    <div class="bow-stage" id="bow-stage">
+                        <svg class="archery-svg" viewBox="0 0 180 160" role="img" aria-label="A wooden recurve bow with a taut string and arrow">
+                            <path d="M 96 8 C 52 18, 38 48, 40 80 C 42 112, 58 142, 96 152" fill="none" stroke="#654a35" stroke-width="11" stroke-linecap="round"/>
+                            <path d="M 94 10 C 55 24, 46 51, 48 80 C 50 109, 62 136, 94 150" fill="none" stroke="#c49362" stroke-width="4" stroke-linecap="round"/>
+                            <path d="M 96 8 L 96 152" id="bow-string" fill="none" stroke="#46524a" stroke-width="2"/>
+                            <path d="M 84 70 Q 76 80 84 90 L 97 86 L 97 74 Z" fill="#8a6243" stroke="#654a35" stroke-width="2"/>
+                            <g id="bow-draggable" role="button" tabindex="0" aria-label="Pull the arrow back to draw the bow">
+                                <line x1="94" y1="80" x2="151" y2="80" stroke="#654a35" stroke-width="3" stroke-linecap="round"/>
+                                <path d="M 151 80 L 168 72 L 164 80 L 168 88 Z" fill="#3f6b4f" stroke="#2b3a33" stroke-width="1.5" stroke-linejoin="round"/>
+                                <path d="M 99 80 L 91 70 L 104 77 M 99 80 L 91 90 L 104 83" fill="none" stroke="#e8707f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                            </g>
+                        </svg>
+                    </div>
+                `;
+            }
+
+            async enter(dom) {
+                const textEl = dom.querySelector('#gift-text');
+                await typeText(textEl, "One last surprise, my love...", 50);
+                await new Promise(r => setTimeout(r, 1000));
+                await typeText(textEl, "Drag the arrow left, then release.", 40);
+
+                const bow = dom.querySelector('#bow-draggable');
+                const bowStage = dom.querySelector('#bow-stage');
+                const bowString = dom.querySelector('#bow-string');
+                let isDragging = false;
+                let completed = false;
+                let startX = 0;
+                let activePointerId = null;
+                const maxPull = Math.min(100, window.innerWidth * 0.28);
+                const drawState = { pull: 0 };
+
+                const updateDraw = () => {
+                    const centerX = 96 + drawState.pull;
+                    const controlX = 96 + drawState.pull * 0.45;
+                    bowString.setAttribute('d', `M 96 8 Q ${controlX} 44 ${centerX} 80 Q ${controlX} 116 96 152`);
+                    gsap.set(bow, {x: drawState.pull});
+                };
+
+                const returnArrow = (launched) => {
+                    if (completed) return;
+                    if (launched) completed = true;
+                    gsap.to(drawState, {
+                        pull: 0,
+                        duration: launched ? 0.16 : 0.45,
+                        ease: launched ? "power3.in" : "elastic.out(1, 0.35)",
+                        onUpdate: updateDraw,
+                        onComplete: () => {
+                            if (launched) {
+                                AudioManager.playSFX('snap');
+                                sceneManager.next();
+                            }
+                        }
+                    });
+                };
+
+                const cleanupListeners = () => {
+                    isDragging = false;
+                    document.removeEventListener('pointermove', pointerMove);
+                    document.removeEventListener('pointerup', pointerUp);
+                    document.removeEventListener('pointercancel', pointerCancel);
+                    bowStage.removeEventListener('pointerdown', pointerDown);
+                    bow.removeEventListener('keydown', onKeyDown);
+                    if (activePointerId !== null && bowStage.hasPointerCapture?.(activePointerId)) {
+                        bowStage.releasePointerCapture(activePointerId);
+                    }
+                };
+
+                const pointerDown = (e) => {
+                    if (completed || isDragging || e.isPrimary === false || (e.pointerType === 'mouse' && e.button !== 0)) return;
+                    e.preventDefault();
+                    isDragging = true;
+                    startX = e.clientX;
+                    activePointerId = e.pointerId ?? null;
+                    if (activePointerId !== null && bowStage.setPointerCapture) {
+                        try { bowStage.setPointerCapture(activePointerId); } catch (_) {}
+                    }
+                    AudioManager.playSFX('pop');
+                };
+
+                const pointerMove = (e) => {
+                    if (!isDragging || completed) return;
+                    if (activePointerId !== null && e.pointerId !== activePointerId) return;
+                    e.preventDefault();
+                    drawState.pull = Math.max(-maxPull, Math.min(0, e.clientX - startX));
+                    updateDraw();
+                };
+
+                const pointerUp = (e) => {
+                    if (!isDragging || completed) return;
+                    if (activePointerId !== null && e.pointerId !== activePointerId) return;
+                    isDragging = false;
+                    if (activePointerId !== null && bowStage.hasPointerCapture?.(activePointerId)) {
+                        bowStage.releasePointerCapture(activePointerId);
+                    }
+                    activePointerId = null;
+                    const launched = Math.abs(drawState.pull) >= maxPull * 0.34;
+                    returnArrow(launched);
+                };
+
+                const pointerCancel = () => {
+                    if (!isDragging || completed) return;
+                    isDragging = false;
+                    activePointerId = null;
+                    returnArrow(false);
+                };
+
+                const onKeyDown = (e) => {
+                    if (completed || (e.code !== 'Space' && e.code !== 'Enter')) return;
+                    e.preventDefault();
+                    drawState.pull = -maxPull * 0.72;
+                    updateDraw();
+                    returnArrow(true);
+                };
+
+                bowStage.addEventListener('pointerdown', pointerDown);
+                bow.addEventListener('keydown', onKeyDown);
+                document.addEventListener('pointermove', pointerMove, {passive: false});
+                document.addEventListener('pointerup', pointerUp);
+                document.addEventListener('pointercancel', pointerCancel);
+                this.cleanup = cleanupListeners;
+                updateDraw();
+            }
+            exit() {
+                if (this.cleanup) this.cleanup();
+                gsap.killTweensOf('#bow-stage, #bow-draggable');
+            }
+        }
+
+        class SceneDeath {
+            template() {
+                return `
+                    <!-- Avatar Image (Cat Image) -->
+                    <div id="avatar-element" style="width: 100px; height: 100px; top: 10%;">
+                        <img id="cat-avatar" src="assets/cat-normal.png" alt="The cat before the playful arrow hit" style="width:100%; height:100%; object-fit:contain;" />
+                    </div>
+
+                    <div id="impact-effect" aria-hidden="true">
+                        <svg viewBox="0 0 148 148">
+                            <circle cx="74" cy="74" r="49" fill="none" stroke="#fbe7a1" stroke-width="5" stroke-dasharray="5 7"/>
+                            <g fill="none" stroke="#e8707f" stroke-width="5" stroke-linecap="round">
+                                <path d="M74 4v20 M74 124v20 M4 74h20 M124 74h20"/>
+                                <path d="M25 25l15 15 M108 108l15 15 M123 25l-15 15 M40 108l-15 15"/>
+                            </g>
+                        </svg>
+                        <span>BONK!</span>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div id="arrow-element">
+                        <svg viewBox="0 0 56 14" width="100%" height="100%">
+                            <path d="M 0 7 L 42 7 M 42 1 L 56 7 L 42 13 Z" fill="var(--c-sage)" stroke="var(--c-deepgreen)" stroke-width="1.5" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                `;
+            }
+
+            async enter(dom) {
+                const avatar = dom.querySelector('#avatar-element');
+                const arrow = dom.querySelector('#arrow-element');
+                const impact = dom.querySelector('#impact-effect');
+                
+                gsap.set(avatar, {opacity: 1, scale: 0, y: -20});
+                await gsap.to(avatar, {scale: 1, y: 0, duration: 0.6, ease: "back.out"});
+
+                // Wait a tiny bit for dramatic effect
+                await new Promise(r => setTimeout(r, 200));
+
+                // Launch from the bow's former position with no extra prop.
+                const endRect = avatar.getBoundingClientRect();
+                
+                const startX = window.innerWidth / 2;
+                const startY = window.innerHeight * 0.78;
+                
+                // The projectile's tip finishes at the center of the cat.
+                const endX = endRect.left + endRect.width / 2;
+                const endY = endRect.top + endRect.height / 2;
+
+                // Control point for arc
+                const cpX = (startX + endX) / 2 + (Math.random() > 0.5 ? 50 : -50);
+                const cpY = Math.min(startY, endY) - 150;
+
+                gsap.set(arrow, {opacity: 1, x: startX, y: startY});
+
+                let proxy = { t: 0 };
+                const arrowLength = 56;
+                const arrowHeight = 14;
+                AudioManager.playSFX('whoosh');
+
+                gsap.to(proxy, {
+                    t: 1,
+                    duration: 1.2,
+                    ease: "power2.in",
+                    onUpdate: () => {
+                        let t = proxy.t;
+                        let mt = 1 - t;
+                        // Quadratic bezier
+                        let x = mt*mt*startX + 2*mt*t*cpX + t*t*endX;
+                        let y = mt*mt*startY + 2*mt*t*cpY + t*t*endY;
+                        
+                        // Tangent rotation
+                        let vx = 2*mt*(cpX-startX) + 2*t*(endX-cpX);
+                        let vy = 2*mt*(cpY-startY) + 2*t*(endY-cpY);
+                        let angle = Math.atan2(vy, vx);
+                        
+                        arrow.style.transform = `translate(${x - arrowLength}px, ${y - arrowHeight / 2}px) rotate(${angle}rad)`;
+                    },
+                    onComplete: () => {
+                        // Impact!
+                        gsap.set(arrow, {opacity: 0});
+                        
+                        // Show the X-eyed cat and comic impact burst on the same frame.
+                        const catImg = dom.querySelector('#cat-avatar');
+                        if (catImg) {
+                            catImg.src = "assets/cat-stunned.png";
+                            catImg.alt = "The cat with X-shaped eyes after the playful hit";
+                        }
+                        AudioManager.playSFX('pop');
+                        gsap.fromTo(impact,
+                            {opacity: 0, scale: 0.35, rotation: -16},
+                            {opacity: 1, scale: 1, rotation: 0, duration: 0.24, ease: "back.out(1.7)"}
+                        );
+                        gsap.to(impact, {opacity: 0, scale: 0.8, duration: 0.25, delay: 0.45});
+                        
+                        // Flash screen
+                        gsap.to('body', {backgroundColor: varColor('--c-red'), duration: 0.05, yoyo: true, repeat: 1, onComplete: () => gsap.set('body', {clearProps: 'all'})});
+                        
+                        // Hold for a moment to see the funny face before exploding
+                        setTimeout(() => {
+                            gsap.set(avatar, {opacity: 0}); // Hide DOM avatar
+                            // Trigger canvas physics
+                            fx.triggerDeath(endRect);
+
+                            // Wait for pixels to fall, then next scene
+                            setTimeout(() => sceneManager.next(), 2500);
+                        }, 800);
+                    }
+                });
+            }
+            exit() {}
+        }
+
+        class SceneTypography {
+            template() {
+                return `
+                    <div id="typo-huge" style="font-family: var(--f-pixel); font-size: 3rem; color: var(--c-red); text-align:center; opacity: 0; line-height:1.2; text-shadow: 4px 4px 0 var(--c-yellow);">I LOVE YOU!!!<br>❤️</div>
+                    <button class="btn btn-primary" id="typo-btn" style="position: absolute; bottom: 15%; opacity: 0; pointer-events: none; z-index: 101;">CLICK ME, MY LOVE ♡</button>
+                `;
+            }
+
+            async enter(dom) {
+                const huge = dom.querySelector('#typo-huge');
+                const btn = dom.querySelector('#typo-btn');
+                
+                // Initial freeze frame impact
+                gsap.set(huge, {scale: 0.5});
+                await gsap.to(huge, {opacity: 1, scale: 1, duration: 0.8, ease: "elastic.out(1, 0.4)"});
+                await new Promise(r => setTimeout(r, 1500));
+                
+                // Fade out huge text and START canvas engine
+                gsap.to(huge, {opacity: 0, y: -50, duration: 1});
+                
+                fx.initTypographyFall(); // Fix Bug 7.8 (Slow, time-based, dense)
+
+                // Wait config seconds before showing button
+                setTimeout(() => {
+                    btn.style.pointerEvents = 'auto';
+                    gsap.to(btn, {opacity: 1, y: -20, duration: 1, ease: "power2.out"});
+                }, CONFIG.explosion.secondsBeforeButton * 1000);
+
+                btn.addEventListener('click', () => {
+                    btn.style.pointerEvents = 'none';
+                    AudioManager.playSFX('pop');
+                    // Stop FX engine gracefully
+                    fx.stop();
+                    sceneManager.next();
+                });
+            }
+            exit() { fx.stop(); }
+        }
+
+        class SceneCake {
+            template() {
+                // Bug 1 Fix: Entire cake + candles + flames in one shared viewBox
+                return `
+                    <div style="font-family: var(--f-ui); font-size: 1.5rem; color: var(--c-deepblue); margin-bottom: 40px;" id="cake-text">Make a wish, my love.</div>
+                    <div class="cake-wrapper">
+                        <svg viewBox="0 0 280 300" width="100%" height="100%">
+                            <!-- Plate -->
+                            <ellipse cx="140" cy="270" rx="120" ry="25" fill="#e0e0e0"/>
+                            <!-- Cake Base -->
+                            <path d="M 40 250 C 40 270, 240 270, 240 250 L 240 150 C 240 130, 40 130, 40 150 Z" fill="var(--c-pink)"/>
+                            <!-- Frosting Details -->
+                            <path d="M 40 150 Q 60 180 90 150 Q 115 180 140 150 Q 165 180 190 150 Q 220 180 240 150 L 240 130 C 240 110, 40 110, 40 130 Z" fill="var(--c-offwhite)"/>
+                            <rect x="35" y="190" width="210" height="15" fill="var(--c-sage)"/>
+                            
+                            <!-- Candles & Flames Grouped by Hit Area -->
+                            <!-- Candle 1 -->
+                            <g class="flame-group" data-id="1">
+                                <rect x="80" y="70" width="12" height="60" fill="var(--c-yellow)" rx="2"/>
+                                <line x1="86" y1="70" x2="86" y2="60" stroke="#333" stroke-width="2"/>
+                                <path class="flame-svg" d="M 86 35 Q 96 45 86 60 Q 76 45 86 35 Z" fill="var(--c-red)"/>
+                                <circle cx="86" cy="45" r="30" class="flame-hitarea"/>
+                            </g>
+                            
+                            <!-- Candle 2 (Center) -->
+                            <g class="flame-group" data-id="2">
+                                <rect x="134" y="50" width="12" height="60" fill="var(--c-blue)" rx="2"/>
+                                <line x1="140" y1="50" x2="140" y2="40" stroke="#333" stroke-width="2"/>
+                                <path class="flame-svg" d="M 140 15 Q 150 25 140 40 Q 130 25 140 15 Z" fill="var(--c-red)"/>
+                                <circle cx="140" cy="25" r="30" class="flame-hitarea"/>
+                            </g>
+
+                            <!-- Candle 3 -->
+                            <g class="flame-group" data-id="3">
+                                <rect x="188" y="70" width="12" height="60" fill="var(--c-yellow)" rx="2"/>
+                                <line x1="194" y1="70" x2="194" y2="60" stroke="#333" stroke-width="2"/>
+                                <path class="flame-svg" d="M 194 35 Q 204 45 194 60 Q 184 45 194 35 Z" fill="var(--c-red)"/>
+                                <circle cx="194" cy="45" r="30" class="flame-hitarea"/>
+                            </g>
+                        </svg>
+                    </div>
+                `;
+            }
+
+            async enter(dom) {
+                AudioManager.duck(0.2, 2); // Soften music
+                
+                const flames = dom.querySelectorAll('.flame-group');
+                let flamesOut = 0;
+                
+                // Soft flicker using GSAP
+                flames.forEach((group, i) => {
+                    const flame = group.querySelector('.flame-svg');
+                    gsap.to(flame, {
+                        scaleY: 0.85,
+                        scaleX: 1.1,
+                        transformOrigin: "bottom center",
+                        duration: 0.7 + (Math.random()*0.5), // Irregular phase
+                        yoyo: true,
+                        repeat: -1,
+                        ease: "sine.inOut"
+                    });
+                    
+                    // Click handler
+                    group.addEventListener('click', () => {
+                        if (group.dataset.blown === "true") return;
+                        group.dataset.blown = "true";
+                        
+                        AudioManager.playSFX('whoosh'); // Puff sound
+                        gsap.killTweensOf(flame);
+                        gsap.to(flame, {scale: 0, opacity: 0, duration: 0.3, transformOrigin: "bottom center"});
+                        
+                        flamesOut++;
+                        if (flamesOut === 3) this.onAllOut();
+                    });
+                });
+
+                // Hint pulse after 12s
+                this.hintTimeout = setTimeout(() => {
+                    if (flamesOut < 3) {
+                        gsap.to(dom.querySelectorAll('.flame-hitarea'), {
+                            fill: "rgba(232, 112, 127, 0.2)",
+                            duration: 1, yoyo: true, repeat: 3
+                        });
+                    }
+                }, 12000);
+            }
+
+            async onAllOut() {
+                const overlay = document.getElementById('dusk-overlay');
+                // Dusk fade in
+                gsap.to(overlay, {opacity: 1, duration: 2});
+                await new Promise(r => setTimeout(r, 2500));
+                
+                // Brighten back up
+                gsap.to(overlay, {opacity: 0, duration: 2});
+                AudioManager.duck(0.5, 2); // Restore volume slightly
+                
+                sceneManager.next();
+            }
+
+            exit() {
+                clearTimeout(this.hintTimeout);
+                gsap.killTweensOf('.flame-svg, .flame-hitarea, #dusk-overlay');
+                gsap.set('#dusk-overlay', {opacity: 0});
+            }
+        }
+
+        class SceneFinalLetter {
+            template() {
+                return `
+                    <div style="background: url('data:image/svg+xml,%3Csvg width=\\'40\\' height=\\'40\\' viewBox=\\'0 0 40 40\\' xmlns=\\'http://www.w3.org/2000/svg\\'%3E%3Cpath d=\\'M20 5 Q25 15 20 25 Q15 15 20 5 Z\\' fill=\\'%23A9C4A0\\' opacity=\\'0.2\\'/%3E%3C/svg%3E'); position:absolute; top:0; left:0; width:100%; height:100%; z-index:-1;"></div>
+                    
+                    <article class="final-letter-sheet" aria-label="A birthday letter for my love">
+                        <div class="final-letter-text" id="final-text"></div>
+                    </article>
+                `;
+            }
+
+            async enter(dom) {
+                const textEl = dom.querySelector('#final-text');
+                const lines = CONFIG.finalLetter;
+
+                textEl.replaceChildren();
+                for (let i = 0; i < lines.length; i++) {
+                    const line = document.createElement('p');
+                    line.className = 'final-letter-line';
+                    textEl.appendChild(line);
+                    await typeText(line, lines[i], 26);
+                    if (i < lines.length - 1) await new Promise(r => setTimeout(r, 220));
+                }
+
+                await new Promise(r => setTimeout(r, 5500));
+                sceneManager.next();
+            }
+            exit() {}
+        }
+
+        class SceneOutro {
+            template() {
+                return `
+                    <div style="font-family: var(--f-script); font-size: 3.5rem; color: var(--c-red); text-align: center; margin-bottom: 20px;" id="outro-title">Happy Birthday<br>My Love ♡</div>
+                    <div style="font-family: var(--f-sans); font-size: 1rem; color: var(--c-charcoal); text-align: center; margin-bottom: 40px;" id="outro-sub">Made with love, only for you.<br>— from me ❤️</div>
+                    <button class="btn btn-primary" id="btn-replay">♡ Start Again</button>
+                `;
+            }
+
+            enter(dom) {
+                const title = dom.querySelector('#outro-title');
+                const sub = dom.querySelector('#outro-sub');
+                const btn = dom.querySelector('#btn-replay');
+
+                gsap.from(title, {y: 30, opacity: 0, duration: 1.5, ease: "power2.out"});
+                gsap.from(sub, {y: 20, opacity: 0, duration: 1.5, delay: 0.5, ease: "power2.out"});
+                gsap.from(btn, {scale: 0.8, opacity: 0, duration: 1, delay: 1, ease: "back.out"});
+
+                btn.addEventListener('click', () => {
+                    // Full reset (Bug 4)
+                    sceneManager.goTo(0);
+                });
+            }
+            exit() {}
+        }
+
+        const sceneManager = new SceneManager();
+
+        // ---------------------------------------------------------
+        // APP INITIALIZATION
+        // ---------------------------------------------------------
+        window.onload = async () => {
+            // Wait for fonts to avoid Canvas fallback issues (Bug 3)
+            try {
+                await document.fonts.ready;
+                STATE.fontsLoaded = true;
+            } catch (e) {
+                console.warn("Font loading wait failed, proceeding anyway.");
+            }
+            
+            createBackgroundHearts();
+            sceneManager.goTo(0);
+        };
+    </script>
+</body>
+</html>
